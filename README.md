@@ -15,9 +15,10 @@ LinkedIn directly!
 
 !!! WARNING PLEASE READ !!!
 
-You can follow instructions of vanilla version it essentially work the same, but the parser is now working for only yahoo right now since
-=> Google Chrome cancel requests with 429 (we have to find a way to get not detected by chrome and it will work again)
-=> Bing => Asking captcha so it parse the captcha with no data
+You can follow instructions of vanilla version it essentially work the same, 
+but the parser is now working for only yahoo right now since:
+- Google Chrome cancel requests with 429 (we have to find a way to get not detected by chrome and it will work again)
+- Bing => Asking captcha so it parse the captcha with no data
 
 You can still use the same pattern mapping to search nothing has changed for this.
 
