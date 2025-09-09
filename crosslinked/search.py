@@ -93,18 +93,11 @@ class CrossLinked:
 
     def link_parser(self, url, link):
         u = {'url': url}
-        if "john" in url:
-            print(link)
     
         # Safely extract text from <span> or <h3> or entire <a>
         text = link.get_text(" ", strip=True)
         u['text'] = unidecode(text)
-        if "john" in url:
-            print("ALLO")
-            print(u['text'])
         u['title'] = self.parse_linkedin_title(u['text'])
-        if "john" in url:
-            print(u['title'])
         u['name'] = self.parse_linkedin_name(u['text'])
 
         return u
@@ -129,41 +122,10 @@ class CrossLinked:
             return unidecode(name).lower()
         return False
     
-    #def link_parser(self, url, link):
-    #    if "john" in url:
-    #        print(link)
-    #    u = {'url': url}
-    #    u['text'] = unidecode(link.text.split("|")[0].split("...")[0])  # Capture link text before trailing chars
-    #    u['title'] = self.parse_linkedin_title(u['text'])               # Extract job title
-    #    u['name'] = self.parse_linkedin_name(u['text'])                 # Extract whole name
-    #    return u
-
-    #def parse_linkedin_title(self, data):
-    #    try:
-    #        title = data.split("-")[1].split('https:')[0]
-    #        return title.split("...")[0].split("|")[0].strip()
-    #    except:
-    #        return 'N/A'
-
-    #def parse_linkedin_name(self, data):
-    #    try:
-    #        name = data.split("-")[0].strip()
-    #        return unidecode(replace_special_characters(name)).lower()
-    #    except:
-    #        return False
 
     def results_handler(self, link):
         url = str(link.get('href')).lower()
-        # print(url) # SHOW FOUND URL
-        # if "john" in url:
-        #    print(url)
-        # print(link)
 
-        #if "linkedin.com" in  extract_subdomain(url):
-        #    return False
-        # elif 'linkedin.com' not in url:
-        #    return False
-        
         data = self.link_parser(url, link)
         self.log_results(data) if data['name'] else False
 
@@ -229,9 +191,6 @@ def extract_links(resp):
 
 
 def extract_subdomain(url):
-    if "john" in url:
-        print(urlparse(url).path) # DEBUG URL A PARSER
-    # return urlparse(url).netloc # ANCIEN NOT WORKING!
     return urlparse(url).path
 
 def replace_special_characters(text):

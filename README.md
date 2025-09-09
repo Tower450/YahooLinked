@@ -1,5 +1,5 @@
 <div align="center">
-    <h1>CrossLinked</h1>
+    <h1>YahooLinked</h1>
 </div>
 
 <p align="center">
@@ -8,10 +8,26 @@
 </p>
 
 
-CrossLinked is a LinkedIn enumeration tool that uses search engine scraping to collect valid employee names from an 
+YahooLinked (CrossLinked using yahoo)  is a LinkedIn enumeration tool that uses search engine scraping to collect valid employee names from an 
 organization. This technique provides accurate results without the use of API keys, credentials, or accessing 
 LinkedIn directly!
 
+
+!!! WARNING PLEASE READ !!!
+
+You can follow instructions of vanilla version it essentially work the same, but the parser is now working for only yahoo right now since
+=> Google Chrome cancel requests with 429 (we have to find a way to get not detected by chrome and it will work again)
+=> Bing => Asking captcha so it parse the captcha with no data
+
+You can still use the same pattern mapping to search nothing has changed for this.
+
+Flag `--search yahoo` is necessary to work.
+
+Command working:
+
+```bash
+python3 crosslinked.py -f '{first}.{last}@tesla.ca' tesla -t 15 -j 2 --search yahoo
+```
 
 ## Table of Contents
 - [Install](#install)
