@@ -1,6 +1,7 @@
 import logging
 import requests
 import threading
+import re
 from time import sleep
 from random import choice
 from bs4 import BeautifulSoup
@@ -40,8 +41,12 @@ class Timer(threading.Thread):
 class CrossLinked:
     def __init__(self, search_engine, target, timeout, conn_timeout=3, proxies=[], jitter=0):
         self.results = []
-        self.url = {'google': 'https://www.google.com/search?q=site:linkedin.com/in+"{}"&num=100&start={}',
-                    'bing': 'http://www.bing.com/search?q="{}"+site:linkedin.com/in&first={}'}
+        self.url = {
+            'google': 'https://www.google.com/search?q=site%3Alinkedin.com%2Fin+{}&num=100&start={}',
+            'bing':   'https://www.bing.com/search?q=site%3Alinkedin.com%2Fin+{}&first={}',
+            'yahoo':  'https://search.yahoo.com/search?p=site%3Alinkedin.com%2Fin+{}&b={}'
+        }
+ 
 
         self.runtime = datetime.now().strftime('%m-%d-%Y %H:%M:%S')
         self.search_engine = search_engine
@@ -59,6 +64,7 @@ class CrossLinked:
             try:
                 url = self.url[self.search_engine].format(self.target, len(self.results))
                 resp = web_request(url, self.conn_timeout, self.proxies)
+                # print(resp.text)
                 http_code = get_statuscode(resp)
 
                 if http_code != 200:
@@ -84,35 +90,80 @@ class CrossLinked:
             except Exception as e:
                 Log.warn('Failed Parsing: {}- {}'.format(link.get('href'), e))
 
+
     def link_parser(self, url, link):
         u = {'url': url}
-        u['text'] = unidecode(link.text.split("|")[0].split("...")[0])  # Capture link text before trailing chars
-        u['title'] = self.parse_linkedin_title(u['text'])               # Extract job title
-        u['name'] = self.parse_linkedin_name(u['text'])                 # Extract whole name
+        if "john" in url:
+            print(link)
+    
+        # Safely extract text from <span> or <h3> or entire <a>
+        text = link.get_text(" ", strip=True)
+        u['text'] = unidecode(text)
+        if "john" in url:
+            print("ALLO")
+            print(u['text'])
+        u['title'] = self.parse_linkedin_title(u['text'])
+        if "john" in url:
+            print(u['title'])
+        u['name'] = self.parse_linkedin_name(u['text'])
+
         return u
+    
+    def parse_linkedin_title(self, text):
+        """
+        Extracts job title from text like: 'John Zhang - Tesla | LinkedIn'
+        """
+        match = re.search(r'\b([A-Z][a-z]+(?: [A-Z][a-z]+)*) - (.+?) \| LinkedIn', text)
+        if match:
+            title = match.group(2).strip()
+            return unidecode(title)
+        return 'N/A'
 
-    def parse_linkedin_title(self, data):
-        try:
-            title = data.split("-")[1].split('https:')[0]
-            return title.split("...")[0].split("|")[0].strip()
-        except:
-            return 'N/A'
-
-    def parse_linkedin_name(self, data):
-        try:
-            name = data.split("-")[0].strip()
+    def parse_linkedin_name(self, text):
+        """
+        Extracts name from text like: 'John Zhang - Tesla | LinkedIn'
+        """
+        match = re.search(r'\b([A-Z][a-z]+(?: [A-Z][a-z]+)*) -', text)
+        if match:
+            name = match.group(1).strip()
             return unidecode(name).lower()
-        except:
-            return False
+        return False
+    
+    #def link_parser(self, url, link):
+    #    if "john" in url:
+    #        print(link)
+    #    u = {'url': url}
+    #    u['text'] = unidecode(link.text.split("|")[0].split("...")[0])  # Capture link text before trailing chars
+    #    u['title'] = self.parse_linkedin_title(u['text'])               # Extract job title
+    #    u['name'] = self.parse_linkedin_name(u['text'])                 # Extract whole name
+    #    return u
+
+    #def parse_linkedin_title(self, data):
+    #    try:
+    #        title = data.split("-")[1].split('https:')[0]
+    #        return title.split("...")[0].split("|")[0].strip()
+    #    except:
+    #        return 'N/A'
+
+    #def parse_linkedin_name(self, data):
+    #    try:
+    #        name = data.split("-")[0].strip()
+    #        return unidecode(replace_special_characters(name)).lower()
+    #    except:
+    #        return False
 
     def results_handler(self, link):
         url = str(link.get('href')).lower()
+        # print(url) # SHOW FOUND URL
+        # if "john" in url:
+        #    print(url)
+        # print(link)
 
-        if not extract_subdomain(url).endswith('linkedin.com'):
-            return False
-        elif 'linkedin.com/in' not in url:
-            return False
-
+        #if "linkedin.com" in  extract_subdomain(url):
+        #    return False
+        # elif 'linkedin.com' not in url:
+        #    return False
+        
         data = self.link_parser(url, link)
         self.log_results(data) if data['name'] else False
 
@@ -178,4 +229,23 @@ def extract_links(resp):
 
 
 def extract_subdomain(url):
-    return urlparse(url).netloc
+    if "john" in url:
+        print(urlparse(url).path) # DEBUG URL A PARSER
+    # return urlparse(url).netloc # ANCIEN NOT WORKING!
+    return urlparse(url).path
+
+def replace_special_characters(text):
+    replacements = {
+        'ä': 'ae', 'Ä': 'Ae',
+        'ö': 'oe', 'Ö': 'Oe',
+        'ü': 'ue', 'Ü': 'Ue',
+        'ß': 'ss',
+        'œ': 'oe', 'Œ': 'Oe',
+        'æ': 'ae', 'Æ': 'Ae'
+    }
+    for orig, repl in replacements.items():
+        text = text.replace(orig, repl)
+    return text
+
+
+                                                                                                                                                         
