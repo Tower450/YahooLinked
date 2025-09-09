@@ -104,7 +104,7 @@ class CrossLinked:
     
     def parse_linkedin_title(self, text):
         """
-        Extracts job title from text like: 'John Zhang - Tesla | LinkedIn'
+        Extracts job title from text like: 'John Doe - Tesla | LinkedIn'
         """
         match = re.search(r'\b([A-Z][a-z]+(?: [A-Z][a-z]+)*) - (.+?) \| LinkedIn', text)
         if match:
@@ -114,7 +114,7 @@ class CrossLinked:
 
     def parse_linkedin_name(self, text):
         """
-        Extracts name from text like: 'John Zhang - Tesla | LinkedIn'
+        Extracts name from text like: 'John Doe - Tesla | LinkedIn'
         """
         match = re.search(r'\b([A-Z][a-z]+(?: [A-Z][a-z]+)*) -', text)
         if match:
